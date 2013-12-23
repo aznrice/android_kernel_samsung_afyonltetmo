@@ -206,8 +206,8 @@ void __init msm8226_add_drivers(void)
 	platform_device_register(&sec_device_thermistor);
 #endif
 #endif
-#ifndef CONFIG_INTELLI_THERMAL
-	msm_thermal_device_init();
+#ifdef CONFIG_INTELLI_THERMAL
+	msm_thermal_device_init(NULL);
 #endif
 }
 struct class *sec_class;
