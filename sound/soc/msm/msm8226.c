@@ -32,9 +32,9 @@
 #include "../codecs/wcd9xxx-common.h"
 #include "../codecs/wcd9306.h"
 
-#ifdef CONFIG_SND_SOC_ES325_ATLANTIC
-#include "../codecs/es325-export.h"
-#endif
+#define SAMPLING_RATE_48KHZ 48000
+#define SAMPLING_RATE_96KHZ 96000
+#define SAMPLING_RATE_192KHZ 192000
 
 #define DRV_NAME "msm8226-asoc-tapan"
 
@@ -163,6 +163,8 @@ static int lineout_en_gpio = -1;
 static int vdd_spkr_gpio = -1;
 static struct regulator* earjack_ldo;
 static int msm_proxy_rx_ch = 2;
+
+static int slim0_rx_sample_rate = SAMPLING_RATE_48KHZ;
 static int slim0_rx_bit_format = SNDRV_PCM_FORMAT_S16_LE;
 
 static inline int param_is_mask(int p)
@@ -436,6 +438,8 @@ static const char *const slim0_tx_ch_text[] = {"One", "Two", "Three", "Four"};
 static const char *const proxy_rx_ch_text[] = {"One", "Two", "Three", "Four",
 	"Five", "Six", "Seven", "Eight"};
 static char const *rx_bit_format_text[] = {"S16_LE", "S24_LE"};
+static char const *slim0_rx_sample_rate_text[] = {"KHZ_48", "KHZ_96",
+						  "KHZ_192"};
 
 static const struct soc_enum msm_enum[] = {
 	SOC_ENUM_SINGLE_EXT(2, slim0_rx_ch_text),
@@ -446,6 +450,58 @@ static const char *const btsco_rate_text[] = {"8000", "16000"};
 static const struct soc_enum msm_btsco_enum[] = {
 	SOC_ENUM_SINGLE_EXT(2, btsco_rate_text),
 };
+
+static int slim0_rx_sample_rate_get(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
+{
+	int sample_rate_val = 0;
+
+	switch (slim0_rx_sample_rate) {
+	case SAMPLING_RATE_192KHZ:
+		sample_rate_val = 2;
+		break;
+
+	case SAMPLING_RATE_96KHZ:
+		sample_rate_val = 1;
+		break;
+
+	case SAMPLING_RATE_48KHZ:
+	default:
+		sample_rate_val = 0;
+		break;
+	}
+
+	ucontrol->value.integer.value[0] = sample_rate_val;
+	pr_debug("%s: slim0_rx_sample_rate = %d\n", __func__,
+				slim0_rx_sample_rate);
+
+	return 0;
+}
+
+static int slim0_rx_sample_rate_put(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
+{
+	pr_debug("%s: ucontrol value = %ld\n", __func__,
+			ucontrol->value.integer.value[0]);
+
+	switch (ucontrol->value.integer.value[0]) {
+	case 2:
+		slim0_rx_sample_rate = SAMPLING_RATE_192KHZ;
+		break;
+	case 1:
+		slim0_rx_sample_rate = SAMPLING_RATE_96KHZ;
+		break;
+	case 0:
+	default:
+		slim0_rx_sample_rate = SAMPLING_RATE_48KHZ;
+		break;
+	}
+
+	pr_debug("%s: slim0_rx_sample_rate = %d\n", __func__,
+			slim0_rx_sample_rate);
+
+	return 0;
+}
 
 static int msm_slim_0_rx_ch_get(struct snd_kcontrol *kcontrol,
 	struct snd_ctl_elem_value *ucontrol)
@@ -773,8 +829,7 @@ static int msm_slim_0_rx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	pr_debug("%s()\n", __func__);
 	param_set_mask(params, SNDRV_PCM_HW_PARAM_FORMAT,
 					slim0_rx_bit_format);
-
-	rate->min = rate->max = 48000;
+	rate->min = rate->max = slim0_rx_sample_rate;
 	channels->min = channels->max = msm_slim_0_rx_ch;
 
 	return 0;
@@ -846,13 +901,14 @@ static const struct soc_enum msm_snd_enum[] = {
 	SOC_ENUM_SINGLE_EXT(4, slim0_tx_ch_text),
 	SOC_ENUM_SINGLE_EXT(8, proxy_rx_ch_text),
 	SOC_ENUM_SINGLE_EXT(2, rx_bit_format_text),
+	SOC_ENUM_SINGLE_EXT(3, slim0_rx_sample_rate_text),
 };
 
 #if defined (CONFIG_SEC_MATISSE_PROJECT) || defined (CONFIG_SEC_T10_PROJECT)
 static const char *const cradle_switch_text[] = {"0", "1"};
 
 static const struct soc_enum cradle_switch_enum[] = {
-	SOC_ENUM_SINGLE_EXT(2, cradle_switch_text),
+       SOC_ENUM_SINGLE_EXT(2, cradle_switch_text),
 };
 
 static int cradle_switch_enum_get(struct snd_kcontrol *kcontrol,
@@ -899,9 +955,11 @@ static const struct snd_kcontrol_new msm_snd_controls[] = {
 			msm_proxy_rx_ch_get, msm_proxy_rx_ch_put),
 	SOC_ENUM_EXT("SLIM_0_RX Format", msm_snd_enum[3],
 			slim0_rx_bit_format_get, slim0_rx_bit_format_put),
+	SOC_ENUM_EXT("SLIM_0_RX SampleRate", msm_snd_enum[4],
+			slim0_rx_sample_rate_get, slim0_rx_sample_rate_put),
 #if defined (CONFIG_SEC_MATISSE_PROJECT) || defined (CONFIG_SEC_T10_PROJECT)
-	SOC_ENUM_EXT("CRADLE Switch", cradle_switch_enum[0],
-		     cradle_switch_enum_get, cradle_switch_enum_put),
+       SOC_ENUM_EXT("CRADLE Switch", cradle_switch_enum[0],
+                    cradle_switch_enum_get, cradle_switch_enum_put),
 #endif
 };
 
