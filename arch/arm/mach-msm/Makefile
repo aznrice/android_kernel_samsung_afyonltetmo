@@ -512,7 +512,6 @@ obj-$(CONFIG_BT_BCM4354) += board-bluetooth-bcm4354.o
 obj-$(CONFIG_HAS_MACH_MEMUTILS) += memutils/
 obj-$(CONFIG_ARCH_RANDOM) += early_random.o
 obj-$(CONFIG_PERFMAP) += perfmap.o
-
 obj-$(CONFIG_SEC_VIENNA_PROJECT) += board-vienna-motor.o
 obj-$(CONFIG_SEC_V2_PROJECT) += board-vienna-motor.o
 
@@ -524,3 +523,4 @@ else
 obj-$(CONFIG_SEC_THERMISTOR) += sec_thermistor.o msm8974-thermistor.o
 endif
 obj-$(CONFIG_GSM_MODEM_SPRD6500) += board-sprd6500-spi.o board-sprd6500-modems.o
+obj-$(CONFIG_LCD_KCAL) += board_kcal.o kcal_ctrl.o
