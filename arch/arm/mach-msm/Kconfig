@@ -4835,4 +4835,11 @@ config HAS_MACH_MEMUTILS
 	help
 	Faster memcpy performance for Krait
 
+config LCD_KCAL
+	depends on ARCH_MSM
+	default y
+	bool "LG's LCD calibration code"
+	help
+	  Provides LCD calibration capability
+
 endif
