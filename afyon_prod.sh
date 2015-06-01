@@ -77,6 +77,7 @@ if [ ! -d "$TOOLCHAIN_CCACHE" ]; then
     ln -s $(which ccache) "$CROSSCC""g++"
     ln -s $(which ccache) "$CROSSCC""cpp"
     ln -s $(which ccache) "$CROSSCC""c++"
+    ln -s $(which ccache) "$CROSSCC""strip"
     gototoolchain
     chmod -R 777 bin-ccache
     echo "[BUILD]: CCACHE: Done...";
@@ -84,8 +85,7 @@ fi
 export CCACHE_DIR=$USERCCDIR
 ###CCACHE CONFIGURATION ENDS HERE, DO NOT MESS WITH IT!!!
 
-echo "[BUILD]: Setting cross compile env 
-vars...";
+echo "[BUILD]: Setting cross compile env vars...";
 SAVEDPATH=$PATH;
 SAVEDCROSS_COMPILE=$CROSS_COMPILE;
 SAVEDARCH=$ARCH;
@@ -113,8 +113,7 @@ echo "[BUILD]: Cleaning kernel (make mrproper)...";
 make mrproper
 
 echo "[BUILD]: Using defconfig: afyon...";
-make msm8226-sec_defconfig VARIANT_DEFCONFIG=msm8926-sec_afyonltetmo_defconfig
-
+make boosted_defconfig VARIANT_DEFCONFIG=msm8926-sec_afyonltetmo_defconfig
 echo "[BUILD]: Bulding the kernel...";
 time make -j$NRJOBS || { return 1; }
 echo "[BUILD]: Done with kernel!...";
@@ -126,6 +125,12 @@ echo "[BUILD]: Done with kernel!...";
     cp arch/arm/boot/zImage $OUT_DIR/kernel/
     echo "[BUILD]: Copying modules (*.ko) to $OUT_DIR/modules/...";
     find $SOURCE_DIR/ -name \*.ko -exec cp '{}' $OUT_DIR/modules/ ';'
+    echo "[BUILD]: Stripping modules";
+    "$CROSSCC""strip" --strip-unneeded $OUT_DIR/modules/*.ko;
     echo "[BUILD]: Done!...";
 
-    gotoout
+echo "[BUILD]: All done!...";
+gotosource
+export PATH=$SAVEDPATH 
+export CROSS_COMPILE=$SAVEDCROSS_COMPILE;
+export ARCH=$SAVEDARCH;
