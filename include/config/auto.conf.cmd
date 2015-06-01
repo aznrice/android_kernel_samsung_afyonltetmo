@@ -123,6 +123,7 @@ deps_config := \
 	drivers/platform/msm/Kconfig \
 	drivers/platform/x86/Kconfig \
 	drivers/platform/Kconfig \
+	drivers/staging/prima/Kconfig \
 	drivers/staging/vnswap/Kconfig \
 	drivers/staging/ozwpan/Kconfig \
 	drivers/staging/ramster/Kconfig \
