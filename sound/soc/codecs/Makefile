@@ -235,4 +235,4 @@ obj-$(CONFIG_SND_SOC_ES_515)	+= audience/
 obj-$(CONFIG_SND_SOC_ES705)	+= audience/
 
 # Hack
-obj-$(CONFIG_SOUND_CONTROL_HAX_3_GPL) += sound_control_3_gpl.c
+obj-$(CONFIG_SOUND_CONTROL_HAX_3_GPL) += sound_control_3_gpl.o
