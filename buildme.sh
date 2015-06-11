@@ -113,7 +113,7 @@ echo "[BUILD]: Cleaning kernel (make mrproper)...";
 make mrproper
 
 echo "[BUILD]: Using defconfig: afyon...";
-make boosted_defconfig SELINUX_DEFCONFIG=selinux_defconfig VARIANT_DEFCONFIG=msm8926-sec_afyonltetmo_defconfig
+make msm8226-sec_defconfig SELINUX_DEFCONFIG=selinux_defconfig VARIANT_DEFCONFIG=msm8926-sec_afyonltetmo_defconfig
 echo "[BUILD]: Bulding the kernel...";
 time make -j$NRJOBS || { return 1; }
 echo "[BUILD]: Done with kernel!...";
