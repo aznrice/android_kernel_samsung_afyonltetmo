@@ -1300,7 +1300,7 @@ static int cyttsp4_grpdata_store_touch_params(struct device *dev, u8 *ic_buf,
 {
 	struct cyttsp4_device_access_data *dad
 		= cyttsp4_get_device_access_data(dev);
-	int rc, rc2 = 0, rc3;
+	int rc, rc2 = 0, rc3 = 0;
 
 	pm_runtime_get_sync(dev);
 
